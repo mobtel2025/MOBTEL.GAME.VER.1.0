@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="pl">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Mobtel Game - Wojna o Przyprawę</title>
+    <title>Mobtel Game - Spice War</title>
     <style>
         * { box-sizing: border-box; }
         body {
@@ -65,17 +65,17 @@
     <h1>MOBTEL GAME</h1>
     <div id="ui">
         <div class="ui-top">
-            <div>Kasa: <b id="credits" style="color: #00ff00;">2000</b></div>
-            <div>Baza HP: <b id="baseHpText" style="color: #ff4444;">1000</b></div>
+            <div>Credits: <b id="credits" style="color: #00ff00;">2000</b></div>
+            <div>Base HP: <b id="baseHpText" style="color: #ff4444;">1000</b></div>
         </div>
         <div class="ui-top" style="border-top: 1px dashed #555; padding-top: 4px;">
-            <div>Punkty: <b id="scoreText" style="color: #00ffff;">0</b></div>
+            <div>Score: <b id="scoreText" style="color: #00ffff;">0</b></div>
         </div>
         <div class="ui-buttons">
-            <button class="btn btn-harvest" id="btnBuy">MASZYNA(300)</button>
-            <button class="btn btn-tower" id="btnTower">WIEŻA(500)</button>
-            <button class="btn btn-upgrade" id="btnUpgrade">ULEPSZ(400)</button>
-            <button class="btn btn-factory" id="btnFactory">FABRYKA(800)</button>
+            <button class="btn btn-harvest" id="btnBuy">HARVESTER(300)</button>
+            <button class="btn btn-tower" id="btnTower">TOWER(500)</button>
+            <button class="btn btn-upgrade" id="btnUpgrade">UPGRADE(400)</button>
+            <button class="btn btn-factory" id="btnFactory">FACTORY(800)</button>
             <button class="btn btn-android" id="btnAndroid">ANDROID(200)</button>
         </div>
     </div>
@@ -83,18 +83,18 @@
     <canvas id="gameCanvas" width="350" height="400"></canvas>
     
     <div id="game-over">
-        KONIEC GRY<br>
-        <div style="font-size: 13px; color: #fff; margin-top: 4px;">Twój wynik: <b id="finalScore" style="color: #00ffff;">0</b> pkt</div>
+        GAME OVER<br>
+        <div style="font-size: 13px; color: #fff; margin-top: 4px;">Your score: <b id="finalScore" style="color: #00ffff;">0</b> pts</div>
         
         <div id="score-form">
-            <input type="text" id="player-nick" maxlength="10" placeholder="TWÓJ NICK">
-            <button id="save-score-btn" onclick="saveScore()">ZAPISZ</button>
+            <input type="text" id="player-nick" maxlength="10" placeholder="YOUR NAME">
+            <button id="save-score-btn" onclick="saveScore()">SAVE</button>
         </div>
 
-        <div style="font-size: 12px; color: #fff; margin-top: 4px;">NAJLEPSI GRACZE:</div>
+        <div style="font-size: 12px; color: #fff; margin-top: 4px;">TOP PLAYERS:</div>
         <div class="leaderboard-list" id="leaderboardList"></div>
 
-        <button class="btn" style="background: #aa0000; margin-top: 10px; width: 100%; padding: 8px;" onclick="location.reload()">ZAGRAJ PONOWNIE</button>
+        <button class="btn" style="background: #aa0000; margin-top: 10px; width: 100%; padding: 8px;" onclick="location.reload()">PLAY AGAIN</button>
     </div>
 </div>
 
@@ -187,7 +187,7 @@ const sfx = {
 let currentScore = 0;
 
 function saveScore() {
-    let nick = document.getElementById('player-nick').value.trim().toUpperCase() || 'GRACZ';
+    let nick = document.getElementById('player-nick').value.trim().toUpperCase() || 'PLAYER';
     let scores = JSON.parse(localStorage.getItem('mobtel_scores') || '[]');
     scores.push({ name: nick, score: currentScore });
     scores.sort((a, b) => b.score - a.score);
@@ -203,11 +203,11 @@ function displayLeaderboard() {
     let listEl = document.getElementById('leaderboardList');
     listEl.innerHTML = '';
     if(scores.length === 0) {
-        listEl.innerHTML = '<div style="text-align:center; color:#777;">Brak wyników</div>';
+        listEl.innerHTML = '<div style="text-align:center; color:#777;">No scores yet</div>';
         return;
     }
     scores.forEach((item, index) => {
-        listEl.innerHTML += `<div class="leaderboard-item"><div>${index+1}. ${item.name}</div> <div>${item.score} pkt</div></div>`;
+        listEl.innerHTML += `<div class="leaderboard-item"><div>${index+1}. ${item.name}</div> <div>${item.score} pts</div></div>`;
     });
 }
 
@@ -234,9 +234,9 @@ document.addEventListener("DOMContentLoaded", function() {
 
     function resetModes() {
         placingTower = false; upgradingTower = false; placingFactory = false;
-        btnTower.classList.remove('btn-active'); btnTower.innerText = "WIEŻA(500)";
-        btnUpgrade.classList.remove('btn-active'); btnUpgrade.innerText = "ULEPSZ(400)";
-        btnFactory.classList.remove('btn-active'); btnFactory.innerText = "FABRYKA(800)";
+        btnTower.classList.remove('btn-active'); btnTower.innerText = "TOWER(500)";
+        btnUpgrade.classList.remove('btn-active'); btnUpgrade.innerText = "UPGRADE(400)";
+        btnFactory.classList.remove('btn-active'); btnFactory.innerText = "FACTORY(800)";
     }
 
     btnBuy.addEventListener('click', (e) => {
@@ -251,25 +251,25 @@ document.addEventListener("DOMContentLoaded", function() {
     btnTower.addEventListener('click', (e) => {
         e.preventDefault(); startAmigaMusic();
         if(placingTower) { resetModes(); return; } resetModes();
-        if(credits >= 500 && !gameOver) { placingTower = true; btnTower.classList.add('btn-active'); btnTower.innerText = "MIEJSCE?"; }
+        if(credits >= 500 && !gameOver) { placingTower = true; btnTower.classList.add('btn-active'); btnTower.innerText = "PLACE?"; }
     });
 
     btnUpgrade.addEventListener('click', (e) => {
         e.preventDefault(); startAmigaMusic();
         if(upgradingTower) { resetModes(); return; } resetModes();
-        if(credits >= 400 && !gameOver) { upgradingTower = true; btnUpgrade.classList.add('btn-active'); btnUpgrade.innerText = "WYBIERZ"; }
+        if(credits >= 400 && !gameOver) { upgradingTower = true; btnUpgrade.classList.add('btn-active'); btnUpgrade.innerText = "SELECT"; }
     });
 
     btnFactory.addEventListener('click', (e) => {
         e.preventDefault(); startAmigaMusic();
-        if(factory) { alert("Możesz mieć tylko jedną Fabrykę Androidów!"); return; }
+        if(factory) { alert("You can only build one Android Factory!"); return; }
         if(placingFactory) { resetModes(); return; } resetModes();
-        if(credits >= 800 && !gameOver) { placingFactory = true; btnFactory.classList.add('btn-active'); btnFactory.innerText = "MIEJSCE?"; }
+        if(credits >= 800 && !gameOver) { placingFactory = true; btnFactory.classList.add('btn-active'); btnFactory.innerText = "PLACE?"; }
     });
 
     btnAndroid.addEventListener('click', (e) => {
         e.preventDefault(); startAmigaMusic(); resetModes();
-        if(!factory) { alert("Zbuduj najpierw Fabrykę!"); return; }
+        if(!factory) { alert("Build a Factory first!"); return; }
         if(credits >= 200 && !gameOver) {
             credits -= 200; currentScore += 30;
             document.getElementById('credits').innerText = credits;
@@ -366,7 +366,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     if (a.cooldown <= 0) {
                         let bx = a.x + Math.cos(a.angle) * 12 - Math.sin(a.angle) * 3;
                         let by = a.y + Math.sin(a.angle) * 12 + Math.cos(a.angle) * 3;
-                        projectiles.push({ x: bx, y: by, tx: target.x, ty: target.y, speed: 8, isEnemy: false, dmg: 10, percentDmg: 0, color: '#00ffcc' });
+                        projectiles.push({ x: bx, y: by, tx: target.x, ty: target.y, speed: 8, isEnemy: false, dmg: 10, percentDmg: 0, color: '#00ffcc', isBomb: false });
                         a.cooldown = 20; sfx.laser1();
                     }
                 }
@@ -409,12 +409,12 @@ document.addEventListener("DOMContentLoaded", function() {
                         let pSpeed = 8; let pDmg = t.level === 2 ? 25 : 30; 
                         if(t.level === 1) {
                             let bx = t.x + Math.cos(t.angle) * 19; let by = t.y + Math.sin(t.angle) * 19;
-                            projectiles.push({ x: bx, y: by, tx: target.x, ty: target.y, speed: pSpeed, isEnemy: false, dmg: pDmg, percentDmg: 0, color: '#00ffff' }); sfx.laser1();
+                            projectiles.push({ x: bx, y: by, tx: target.x, ty: target.y, speed: pSpeed, isEnemy: false, dmg: pDmg, percentDmg: 0, color: '#00ffff', isBomb: false }); sfx.laser1();
                         } else {
                             let bx1 = t.x + Math.cos(t.angle) * 20 - Math.sin(t.angle) * 5.5; let by1 = t.y + Math.sin(t.angle) * 20 + Math.cos(t.angle) * 5.5;
                             let bx2 = t.x + Math.cos(t.angle) * 20 - Math.sin(t.angle) * -5.5; let by2 = t.y + Math.sin(t.angle) * 20 + Math.cos(t.angle) * -5.5;
-                            projectiles.push({ x: bx1, y: by1, tx: target.x, ty: target.y, speed: pSpeed, isEnemy: false, dmg: pDmg, percentDmg: 0, color: '#ff0000' });
-                            projectiles.push({ x: bx2, y: by2, tx: target.x, ty: target.y, speed: pSpeed, isEnemy: false, dmg: pDmg, percentDmg: 0, color: '#ff0000' });
+                            projectiles.push({ x: bx1, y: by1, tx: target.x, ty: target.y, speed: pSpeed, isEnemy: false, dmg: pDmg, percentDmg: 0, color: '#ff0000', isBomb: false });
+                            projectiles.push({ x: bx2, y: by2, tx: target.x, ty: target.y, speed: pSpeed, isEnemy: false, dmg: pDmg, percentDmg: 0, color: '#ff0000', isBomb: false });
                             sfx.laser2();
                         }
                         t.cooldown = t.level === 2 ? 20 : 40;
@@ -538,17 +538,14 @@ document.addEventListener("DOMContentLoaded", function() {
             if(w.timer <= 0) worms.splice(wIndex, 1);
         }
 
-        // Fala 1: Marines (od ok. 2s gry)
         if (frame >= 120 && frame % 250 === 0) {
             let startX = Math.random() > 0.5 ? -20 : canvas.width + 20; let startY = Math.random() * canvas.height;
             enemies.push({ type: 'marine', x: startX, y: startY, hp: 120, maxHp: 120, speed: 0.6, cooldown: 0, angle: 0 });
         }
-        // Fala 2: Mechy (od ok. 58s gry)
         if (frame >= 3500 && frame % 500 === 0) {
             let startX = Math.random() > 0.5 ? -20 : canvas.width + 20; let startY = Math.random() * canvas.height;
             enemies.push({ type: 'mech', x: startX, y: startY, hp: 240, maxHp: 240, speed: 0.35, cooldown: 0, angle: 0 });
         }
-        // Fala 3: Kosmiczny Bombowiec (od ok. 115s gry) - wielki, wolny, niszczycielski
         if (frame >= 7000 && frame % 1000 === 0) {
             let startX = Math.random() > 0.5 ? -40 : canvas.width + 40; 
             let startY = Math.random() * canvas.height;
@@ -581,7 +578,6 @@ document.addEventListener("DOMContentLoaded", function() {
                         projectiles.push({ x: e.x - offsetX, y: e.y - offsetY, tx: target.x, ty: target.y, speed: 7, isEnemy: true, dmg: 30, percentDmg: 0, color: '#ff00ff', isBomb: false });
                         e.cooldown = 70; sfx.mechShoot();
                     } else if (e.type === 'bomber') {
-                        // Kula plazmowa zdejmująca 30% max HP
                         projectiles.push({ x: e.x, y: e.y, tx: target.x, ty: target.y, speed: 4, isEnemy: true, dmg: 0, percentDmg: 0.3, color: '#ffff00', isBomb: true });
                         e.cooldown = 130; sfx.explosion(); 
                     }
@@ -605,7 +601,6 @@ document.addEventListener("DOMContentLoaded", function() {
                 ctx.fillStyle = '#444'; ctx.fillRect(-4, -24, 10, 12); ctx.fillRect(-4, 12, 10, 12); 
                 ctx.fillStyle = '#ff00ff'; ctx.fillRect(18, -21, 4, 6); ctx.fillRect(18, 15, 4, 6); 
             } else if (e.type === 'bomber') {
-                // Wygląd Bombowca
                 ctx.fillStyle = '#111'; ctx.beginPath();
                 ctx.moveTo(35, 0); ctx.lineTo(-25, 30); ctx.lineTo(-15, 0); ctx.lineTo(-25, -30); ctx.closePath(); ctx.fill();
                 ctx.strokeStyle = '#ff0000'; ctx.lineWidth = 2; ctx.stroke();
@@ -630,7 +625,6 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         }
 
-        // 10. System Pocisków
         for (let i = projectiles.length - 1; i >= 0; i--) {
             let p = projectiles[i];
             let dx = p.tx - p.x; let dy = p.ty - p.y; let dist = Math.hypot(dx, dy);
