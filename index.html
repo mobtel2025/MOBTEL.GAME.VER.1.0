@@ -70,6 +70,7 @@
         </div>
         <div class="ui-top" style="border-top: 1px dashed #555; padding-top: 4px;">
             <div>Score: <b id="scoreText" style="color: #00ffff;">0</b></div>
+            <div><b id="waveText" style="color: #ff00ff;">NEXT WAVE: 5s</b></div>
         </div>
         <div class="ui-buttons">
             <button class="btn btn-harvest" id="btnBuy">HARVESTER(300)</button>
@@ -222,6 +223,13 @@ document.addEventListener("DOMContentLoaded", function() {
     let credits = 2000; let frame = 0; let gameOver = false;
     let base = { x: 145, y: 170, w: 60, h: 60, hp: 1000, maxHp: 1000 };
     
+    // System fal
+    let currentWave = 0;
+    let waveState = 'waiting'; // 'waiting', 'spawning', 'active'
+    let waveTimer = 300; // 5 sekund do pierwszej fali
+    let spawnTimer = 0;
+    let enemiesToSpawn = [];
+
     let harvesters = []; let spiceFields = []; let worms = []; let towers = []; 
     let enemies = []; let projectiles = []; let androids = [];
     let factory = null; 
@@ -324,6 +332,48 @@ document.addEventListener("DOMContentLoaded", function() {
 
         if(frame % 60 === 0) { currentScore += 1; }
         document.getElementById('scoreText').innerText = currentScore;
+
+        // Mechanika Fal
+        if (waveState === 'waiting') {
+            waveTimer--;
+            document.getElementById('waveText').innerText = "NEXT WAVE: " + Math.ceil(waveTimer / 60) + "s";
+            if (waveTimer <= 0) {
+                currentWave++;
+                let mCount = currentWave * 2;
+                let mechCount = Math.floor(currentWave / 2);
+                let bCount = Math.floor(currentWave / 3); // 1 bombowiec od fali 3, 2 od fali 6 itd.
+                for(let k=0; k<mCount; k++) enemiesToSpawn.push('marine');
+                for(let k=0; k<mechCount; k++) enemiesToSpawn.push('mech');
+                for(let k=0; k<bCount; k++) enemiesToSpawn.push('bomber');
+                waveState = 'spawning';
+            }
+        } else if (waveState === 'spawning') {
+            document.getElementById('waveText').innerText = "WAVE: " + currentWave;
+            spawnTimer--;
+            if (spawnTimer <= 0 && enemiesToSpawn.length > 0) {
+                let type = enemiesToSpawn.shift();
+                let startX = Math.random() > 0.5 ? -20 : canvas.width + 20; 
+                let startY = Math.random() * canvas.height;
+                if(type === 'bomber') startX = Math.random() > 0.5 ? -40 : canvas.width + 40;
+                
+                if (type === 'marine') {
+                    enemies.push({ type: 'marine', x: startX, y: startY, hp: 120, maxHp: 120, speed: 0.6, cooldown: 0, angle: 0 });
+                } else if (type === 'mech') {
+                    enemies.push({ type: 'mech', x: startX, y: startY, hp: 240, maxHp: 240, speed: 0.35, cooldown: 0, angle: 0 });
+                } else if (type === 'bomber') {
+                    enemies.push({ type: 'bomber', x: startX, y: startY, hp: 1200, maxHp: 1200, speed: 0.2, cooldown: 0, angle: 0 });
+                }
+                spawnTimer = 40; // Opóźnienie między pojawianiem się przeciwników
+            }
+            if (enemiesToSpawn.length === 0) waveState = 'active';
+        } else if (waveState === 'active') {
+            document.getElementById('waveText').innerText = "WAVE: " + currentWave;
+            if (enemies.length === 0) {
+                waveState = 'waiting';
+                waveTimer = 600; // 10 sekund przerwy
+                currentScore += 100 * currentWave; // Bonus za przetrwanie fali
+            }
+        }
 
         if (bgTexture.complete && bgTexture.naturalWidth !== 0) {
             ctx.drawImage(bgTexture, 0, 0, canvas.width, canvas.height);
@@ -536,20 +586,6 @@ document.addEventListener("DOMContentLoaded", function() {
                 androids = androids.filter(a => getDistance(a.x, a.y, w.x, w.y) > 40);
             }
             if(w.timer <= 0) worms.splice(wIndex, 1);
-        }
-
-        if (frame >= 120 && frame % 250 === 0) {
-            let startX = Math.random() > 0.5 ? -20 : canvas.width + 20; let startY = Math.random() * canvas.height;
-            enemies.push({ type: 'marine', x: startX, y: startY, hp: 120, maxHp: 120, speed: 0.6, cooldown: 0, angle: 0 });
-        }
-        if (frame >= 3500 && frame % 500 === 0) {
-            let startX = Math.random() > 0.5 ? -20 : canvas.width + 20; let startY = Math.random() * canvas.height;
-            enemies.push({ type: 'mech', x: startX, y: startY, hp: 240, maxHp: 240, speed: 0.35, cooldown: 0, angle: 0 });
-        }
-        if (frame >= 7000 && frame % 1000 === 0) {
-            let startX = Math.random() > 0.5 ? -40 : canvas.width + 40; 
-            let startY = Math.random() * canvas.height;
-            enemies.push({ type: 'bomber', x: startX, y: startY, hp: 1200, maxHp: 1200, speed: 0.2, cooldown: 0, angle: 0 });
         }
 
         for (let i = enemies.length - 1; i >= 0; i--) {
