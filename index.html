@@ -65,8 +65,8 @@
     <h1>MOBTEL GAME</h1>
     <div id="ui">
         <div class="ui-top">
-            <div>Credits: <b id="credits" style="color: #00ff00;">2000</b></div>
-            <div>Base HP: <b id="baseHpText" style="color: #ff4444;">1000</b></div>
+            <div>Credits: <b id="credits" style="color: #00ff00;">2500</b></div>
+            <div>Base HP: <b id="baseHpText" style="color: #ff4444;">1500</b></div>
         </div>
         <div class="ui-top" style="border-top: 1px dashed #555; padding-top: 4px;">
             <div>Score: <b id="scoreText" style="color: #00ffff;">0</b></div>
@@ -220,13 +220,13 @@ document.addEventListener("DOMContentLoaded", function() {
     const btnFactory = document.getElementById('btnFactory');
     const btnAndroid = document.getElementById('btnAndroid');
     
-    let credits = 2000; let frame = 0; let gameOver = false;
-    let base = { x: 145, y: 170, w: 60, h: 60, hp: 1000, maxHp: 1000 };
+    let credits = 2500; let frame = 0; let gameOver = false;
+    let base = { x: 145, y: 170, w: 60, h: 60, hp: 1500, maxHp: 1500 };
     
     // System fal
     let currentWave = 0;
-    let waveState = 'waiting'; // 'waiting', 'spawning', 'active'
-    let waveTimer = 300; // 5 sekund do pierwszej fali
+    let waveState = 'waiting'; 
+    let waveTimer = 300; 
     let spawnTimer = 0;
     let enemiesToSpawn = [];
 
@@ -330,7 +330,14 @@ document.addEventListener("DOMContentLoaded", function() {
         if(gameOver) return;
         ctx.clearRect(0, 0, canvas.width, canvas.height); frame++;
 
-        if(frame % 60 === 0) { currentScore += 1; }
+        if(frame % 60 === 0) { 
+            currentScore += 1; 
+            // Autonaprawa bazy
+            if(base.hp > 0 && base.hp < base.maxHp) {
+                base.hp = Math.min(base.maxHp, base.hp + 10);
+                document.getElementById('baseHpText').innerText = Math.floor(base.hp);
+            }
+        }
         document.getElementById('scoreText').innerText = currentScore;
 
         // Mechanika Fal
@@ -341,7 +348,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 currentWave++;
                 let mCount = currentWave * 2;
                 let mechCount = Math.floor(currentWave / 2);
-                let bCount = Math.floor(currentWave / 3); // 1 bombowiec od fali 3, 2 od fali 6 itd.
+                let bCount = Math.floor(currentWave / 3); 
                 for(let k=0; k<mCount; k++) enemiesToSpawn.push('marine');
                 for(let k=0; k<mechCount; k++) enemiesToSpawn.push('mech');
                 for(let k=0; k<bCount; k++) enemiesToSpawn.push('bomber');
@@ -363,15 +370,15 @@ document.addEventListener("DOMContentLoaded", function() {
                 } else if (type === 'bomber') {
                     enemies.push({ type: 'bomber', x: startX, y: startY, hp: 1200, maxHp: 1200, speed: 0.2, cooldown: 0, angle: 0 });
                 }
-                spawnTimer = 40; // Opóźnienie między pojawianiem się przeciwników
+                spawnTimer = 40; 
             }
             if (enemiesToSpawn.length === 0) waveState = 'active';
         } else if (waveState === 'active') {
             document.getElementById('waveText').innerText = "WAVE: " + currentWave;
             if (enemies.length === 0) {
                 waveState = 'waiting';
-                waveTimer = 600; // 10 sekund przerwy
-                currentScore += 100 * currentWave; // Bonus za przetrwanie fali
+                waveTimer = 600; 
+                currentScore += 100 * currentWave; 
             }
         }
 
@@ -606,15 +613,15 @@ document.addEventListener("DOMContentLoaded", function() {
                 if(e.cooldown <= 0) {
                     if (e.type === 'marine') {
                         let bx = e.x + Math.cos(e.angle) * 20 - Math.sin(e.angle) * 6.5; let by = e.y + Math.sin(e.angle) * 20 + Math.cos(e.angle) * 6.5;
-                        projectiles.push({ x: bx, y: by, tx: target.x, ty: target.y, speed: 6, isEnemy: true, dmg: 30, percentDmg: 0, color: '#ff8800', isBomb: false });
+                        projectiles.push({ x: bx, y: by, tx: target.x, ty: target.y, speed: 6, isEnemy: true, dmg: 20, percentDmg: 0, color: '#ff8800', isBomb: false });
                         e.cooldown = 50; sfx.bolter();
                     } else if (e.type === 'mech') {
                         let offsetX = Math.cos(e.angle + Math.PI/2) * 12; let offsetY = Math.sin(e.angle + Math.PI/2) * 12;
-                        projectiles.push({ x: e.x + offsetX, y: e.y + offsetY, tx: target.x, ty: target.y, speed: 7, isEnemy: true, dmg: 30, percentDmg: 0, color: '#ff00ff', isBomb: false });
-                        projectiles.push({ x: e.x - offsetX, y: e.y - offsetY, tx: target.x, ty: target.y, speed: 7, isEnemy: true, dmg: 30, percentDmg: 0, color: '#ff00ff', isBomb: false });
+                        projectiles.push({ x: e.x + offsetX, y: e.y + offsetY, tx: target.x, ty: target.y, speed: 7, isEnemy: true, dmg: 20, percentDmg: 0, color: '#ff00ff', isBomb: false });
+                        projectiles.push({ x: e.x - offsetX, y: e.y - offsetY, tx: target.x, ty: target.y, speed: 7, isEnemy: true, dmg: 20, percentDmg: 0, color: '#ff00ff', isBomb: false });
                         e.cooldown = 70; sfx.mechShoot();
                     } else if (e.type === 'bomber') {
-                        projectiles.push({ x: e.x, y: e.y, tx: target.x, ty: target.y, speed: 4, isEnemy: true, dmg: 0, percentDmg: 0.3, color: '#ffff00', isBomb: true });
+                        projectiles.push({ x: e.x, y: e.y, tx: target.x, ty: target.y, speed: 4, isEnemy: true, dmg: 0, percentDmg: 0.2, color: '#ffff00', isBomb: true });
                         e.cooldown = 130; sfx.explosion(); 
                     }
                 }
