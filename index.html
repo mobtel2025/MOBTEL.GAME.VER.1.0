@@ -65,12 +65,12 @@
     <h1>MOBTEL GAME</h1>
     <div id="ui">
         <div class="ui-top">
-            <div>Credits: <b id="credits" style="color: #00ff00;">2500</b></div>
-            <div>Base HP: <b id="baseHpText" style="color: #ff4444;">1500</b></div>
+            <div>Credits: <b id="credits" style="color: #00ff00;">3500</b></div>
+            <div>Base HP: <b id="baseHpText" style="color: #ff4444;">3000</b></div>
         </div>
         <div class="ui-top" style="border-top: 1px dashed #555; padding-top: 4px;">
             <div>Score: <b id="scoreText" style="color: #00ffff;">0</b></div>
-            <div><b id="waveText" style="color: #ff00ff;">NEXT WAVE: 5s</b></div>
+            <div><b id="waveText" style="color: #ff00ff;">NEXT WAVE: 10s</b></div>
         </div>
         <div class="ui-buttons">
             <button class="btn btn-harvest" id="btnBuy">HARVESTER(300)</button>
@@ -220,13 +220,13 @@ document.addEventListener("DOMContentLoaded", function() {
     const btnFactory = document.getElementById('btnFactory');
     const btnAndroid = document.getElementById('btnAndroid');
     
-    let credits = 2500; let frame = 0; let gameOver = false;
-    let base = { x: 145, y: 170, w: 60, h: 60, hp: 1500, maxHp: 1500 };
+    let credits = 3500; let frame = 0; let gameOver = false;
+    let base = { x: 145, y: 170, w: 60, h: 60, hp: 3000, maxHp: 3000 };
     
     // System fal
     let currentWave = 0;
     let waveState = 'waiting'; 
-    let waveTimer = 300; 
+    let waveTimer = 600; // 10 sekund do pierwszej fali
     let spawnTimer = 0;
     let enemiesToSpawn = [];
 
@@ -251,7 +251,8 @@ document.addEventListener("DOMContentLoaded", function() {
         e.preventDefault(); startAmigaMusic(); resetModes();
         if(credits >= 300 && !gameOver) {
             credits -= 300; currentScore += 50;
-            harvesters.push({ x: base.x + 20, y: base.y + 20, targetX: base.x + 20, targetY: base.y + 20, state: 'idle', cargo: 0, speed: 1.2, angle: 0, hp: 100, maxHp: 100 });
+            // Szybsze żniwiarki (speed 1.5)
+            harvesters.push({ x: base.x + 20, y: base.y + 20, targetX: base.x + 20, targetY: base.y + 20, state: 'idle', cargo: 0, speed: 1.5, angle: 0, hp: 100, maxHp: 100 });
             document.getElementById('credits').innerText = credits; sfx.buy();
         }
     });
@@ -281,7 +282,8 @@ document.addEventListener("DOMContentLoaded", function() {
         if(credits >= 200 && !gameOver) {
             credits -= 200; currentScore += 30;
             document.getElementById('credits').innerText = credits;
-            androids.push({ x: factory.x, y: factory.y + 20, hp: 100, maxHp: 100, speed: 1.5, angle: 0, cooldown: 0, id: Math.random() });
+            // Mocniejsze Androidy (200 HP)
+            androids.push({ x: factory.x, y: factory.y + 20, hp: 200, maxHp: 200, speed: 1.5, angle: 0, cooldown: 0, id: Math.random() });
             sfx.androidSpawn();
         }
     });
@@ -332,9 +334,9 @@ document.addEventListener("DOMContentLoaded", function() {
 
         if(frame % 60 === 0) { 
             currentScore += 1; 
-            // Autonaprawa bazy
+            // Znacznie szybsza autonaprawa bazy (30 HP / s)
             if(base.hp > 0 && base.hp < base.maxHp) {
-                base.hp = Math.min(base.maxHp, base.hp + 10);
+                base.hp = Math.min(base.maxHp, base.hp + 30);
                 document.getElementById('baseHpText').innerText = Math.floor(base.hp);
             }
         }
@@ -363,12 +365,13 @@ document.addEventListener("DOMContentLoaded", function() {
                 let startY = Math.random() * canvas.height;
                 if(type === 'bomber') startX = Math.random() > 0.5 ? -40 : canvas.width + 40;
                 
+                // Osłabieni wrogowie
                 if (type === 'marine') {
-                    enemies.push({ type: 'marine', x: startX, y: startY, hp: 120, maxHp: 120, speed: 0.6, cooldown: 0, angle: 0 });
+                    enemies.push({ type: 'marine', x: startX, y: startY, hp: 80, maxHp: 80, speed: 0.6, cooldown: 0, angle: 0 });
                 } else if (type === 'mech') {
-                    enemies.push({ type: 'mech', x: startX, y: startY, hp: 240, maxHp: 240, speed: 0.35, cooldown: 0, angle: 0 });
+                    enemies.push({ type: 'mech', x: startX, y: startY, hp: 150, maxHp: 150, speed: 0.35, cooldown: 0, angle: 0 });
                 } else if (type === 'bomber') {
-                    enemies.push({ type: 'bomber', x: startX, y: startY, hp: 1200, maxHp: 1200, speed: 0.2, cooldown: 0, angle: 0 });
+                    enemies.push({ type: 'bomber', x: startX, y: startY, hp: 800, maxHp: 800, speed: 0.15, cooldown: 0, angle: 0 });
                 }
                 spawnTimer = 40; 
             }
@@ -377,7 +380,7 @@ document.addEventListener("DOMContentLoaded", function() {
             document.getElementById('waveText').innerText = "WAVE: " + currentWave;
             if (enemies.length === 0) {
                 waveState = 'waiting';
-                waveTimer = 600; 
+                waveTimer = 900; // 15 sekund przerwy!
                 currentScore += 100 * currentWave; 
             }
         }
@@ -423,7 +426,8 @@ document.addEventListener("DOMContentLoaded", function() {
                     if (a.cooldown <= 0) {
                         let bx = a.x + Math.cos(a.angle) * 12 - Math.sin(a.angle) * 3;
                         let by = a.y + Math.sin(a.angle) * 12 + Math.cos(a.angle) * 3;
-                        projectiles.push({ x: bx, y: by, tx: target.x, ty: target.y, speed: 8, isEnemy: false, dmg: 10, percentDmg: 0, color: '#00ffcc', isBomb: false });
+                        // Mocniejsze obrażenia od Androidów (20)
+                        projectiles.push({ x: bx, y: by, tx: target.x, ty: target.y, speed: 8, isEnemy: false, dmg: 20, percentDmg: 0, color: '#00ffcc', isBomb: false });
                         a.cooldown = 20; sfx.laser1();
                     }
                 }
@@ -463,7 +467,8 @@ document.addEventListener("DOMContentLoaded", function() {
                         ctx.beginPath(); ctx.moveTo(t.x, t.y); ctx.lineTo(target.x, target.y); ctx.stroke(); ctx.restore();
                         t.level === 2 ? sfx.laser2() : sfx.laser1(); t.cooldown = t.level === 2 ? 15 : 30;
                     } else {
-                        let pSpeed = 8; let pDmg = t.level === 2 ? 25 : 30; 
+                        // Mocniejsze wieże (dmg 40)
+                        let pSpeed = 8; let pDmg = 40; 
                         if(t.level === 1) {
                             let bx = t.x + Math.cos(t.angle) * 19; let by = t.y + Math.sin(t.angle) * 19;
                             projectiles.push({ x: bx, y: by, tx: target.x, ty: target.y, speed: pSpeed, isEnemy: false, dmg: pDmg, percentDmg: 0, color: '#00ffff', isBomb: false }); sfx.laser1();
@@ -551,10 +556,12 @@ document.addEventListener("DOMContentLoaded", function() {
             }
 
             if (h.state === 'mining') {
-                h.cargo += 2;
+                // Szybsze wydobycie (4 zamiast 2)
+                h.cargo += 4;
                 let currentField = spiceFields.find(f => Math.abs(f.x - h.x) < 35 && Math.abs(f.y - h.y) < 35);
-                if (currentField) currentField.amount -= 2;
-                if (h.cargo >= 100 || !currentField) { h.state = 'returning'; h.targetX = base.x + base.w/2; h.targetY = base.y + base.h/2; }
+                if (currentField) currentField.amount -= 4;
+                // Większa ładowność (150)
+                if (h.cargo >= 150 || !currentField) { h.state = 'returning'; h.targetX = base.x + base.w/2; h.targetY = base.y + base.h/2; }
             }
 
             ctx.save(); ctx.translate(h.x, h.y); ctx.rotate(h.angle);
@@ -613,15 +620,17 @@ document.addEventListener("DOMContentLoaded", function() {
                 if(e.cooldown <= 0) {
                     if (e.type === 'marine') {
                         let bx = e.x + Math.cos(e.angle) * 20 - Math.sin(e.angle) * 6.5; let by = e.y + Math.sin(e.angle) * 20 + Math.cos(e.angle) * 6.5;
-                        projectiles.push({ x: bx, y: by, tx: target.x, ty: target.y, speed: 6, isEnemy: true, dmg: 20, percentDmg: 0, color: '#ff8800', isBomb: false });
+                        // Słabsze strzały wrogów
+                        projectiles.push({ x: bx, y: by, tx: target.x, ty: target.y, speed: 6, isEnemy: true, dmg: 10, percentDmg: 0, color: '#ff8800', isBomb: false });
                         e.cooldown = 50; sfx.bolter();
                     } else if (e.type === 'mech') {
                         let offsetX = Math.cos(e.angle + Math.PI/2) * 12; let offsetY = Math.sin(e.angle + Math.PI/2) * 12;
-                        projectiles.push({ x: e.x + offsetX, y: e.y + offsetY, tx: target.x, ty: target.y, speed: 7, isEnemy: true, dmg: 20, percentDmg: 0, color: '#ff00ff', isBomb: false });
-                        projectiles.push({ x: e.x - offsetX, y: e.y - offsetY, tx: target.x, ty: target.y, speed: 7, isEnemy: true, dmg: 20, percentDmg: 0, color: '#ff00ff', isBomb: false });
+                        projectiles.push({ x: e.x + offsetX, y: e.y + offsetY, tx: target.x, ty: target.y, speed: 7, isEnemy: true, dmg: 10, percentDmg: 0, color: '#ff00ff', isBomb: false });
+                        projectiles.push({ x: e.x - offsetX, y: e.y - offsetY, tx: target.x, ty: target.y, speed: 7, isEnemy: true, dmg: 10, percentDmg: 0, color: '#ff00ff', isBomb: false });
                         e.cooldown = 70; sfx.mechShoot();
                     } else if (e.type === 'bomber') {
-                        projectiles.push({ x: e.x, y: e.y, tx: target.x, ty: target.y, speed: 4, isEnemy: true, dmg: 0, percentDmg: 0.2, color: '#ffff00', isBomb: true });
+                        // Słabszy bombowiec (tylko 10% uszkodzeń na cios)
+                        projectiles.push({ x: e.x, y: e.y, tx: target.x, ty: target.y, speed: 4, isEnemy: true, dmg: 0, percentDmg: 0.1, color: '#ffff00', isBomb: true });
                         e.cooldown = 130; sfx.explosion(); 
                     }
                 }
